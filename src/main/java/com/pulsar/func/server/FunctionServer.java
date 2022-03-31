@@ -1,6 +1,7 @@
 package com.pulsar.func.server;
 
 import com.pulsar.func.client.PulsarClientManager;
+import com.pulsar.func.executor.FunctionExecutor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,14 +17,21 @@ public class FunctionServer {
     private static final Logger logger = LoggerFactory.getLogger(FunctionServer.class);
 
     public static void main(String[] args) throws Exception {
-        //PulsarClientManager init
-        if (!PulsarClientManager.getInstance().init()) {
-            logger.error("PulsarClientManager init failed");
+        //bootstrap params
+        String inputTopic = args[0];
+        String outputTopic = args[1];
+
+        //FunctionExecutor init
+        if (!FunctionExecutor.getInstance().start()) {
+            logger.error("FunctionExecutor start failed");
             System.exit(-1);
         }
 
-        //FunctionExecutor init
-        //todo
+        //PulsarClientManager init
+        if (!PulsarClientManager.getInstance().init(inputTopic, outputTopic)) {
+            logger.error("PulsarClientManager init failed");
+            System.exit(-1);
+        }
 
         //server shutdown
         Runtime.getRuntime().addShutdownHook(new ShutdownHook());

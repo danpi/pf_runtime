@@ -23,4 +23,10 @@ public class CommonConstant {
     public final static String INPUT_SUBSCRIPTION = "input_topic_c";
     public final static String OUTPUT_SUBSCRIPTION = "output_topic_c";
     public final static String LOG_TOPIC_SUBSCRIPTION = "inner_log_topic_c";
+
+    //script exec thread pool
+    public final static int DEFAULT_WORK_QUEUE = 100;
+
+    //script
+    public final static String REVERSE_SCRIPT = "/scripts/reverse.sh";
 }

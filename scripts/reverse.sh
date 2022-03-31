@@ -1,3 +1,9 @@
 #!/bin/bash
-string=${1}
-echo "反转结果为：${string}"
+inputStr=${1}
+len=${#inputStr}
+# shellcheck disable=SC2004
+for ((i=$len - 1; i>=0; i--))
+  do
+    reverse="$reverse${inputStr:$i:1}"
+    done
+echo "${reverse}"

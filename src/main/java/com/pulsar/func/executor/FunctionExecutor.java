@@ -1,12 +1,22 @@
 package com.pulsar.func.executor;
 
+import com.pulsar.func.client.PulsarClientManager;
+import com.pulsar.func.constant.CommonConstant;
 import com.pulsar.func.server.FunctionServer;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.pulsar.client.api.Producer;
+import org.apache.pulsar.shade.com.google.common.collect.Queues;
 import org.apache.pulsar.shade.org.apache.commons.lang3.Streams;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.RejectedExecutionHandler;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+
+import static com.pulsar.func.constant.CommonConstant.*;
 
 /**
  * com.pulsar.func.executor
@@ -19,28 +29,36 @@ import java.io.*;
 public class FunctionExecutor {
     private static final Logger logger = LoggerFactory.getLogger(FunctionServer.class);
 
+    private ExecutorService scriptExecutorService = null;
+
     private static FunctionExecutor instance = new FunctionExecutor();
 
-    private static FunctionExecutor getInstance() {
+    public static FunctionExecutor getInstance() {
         return instance;
     }
 
-    public void execBashScripts(String filePath, String inputString) {
-        try {
-            String[] commands = {"/bin/sh", filePath, inputString};
-            Process process = Runtime.getRuntime().exec(commands);
-//用输入输出流来截取结果
-            BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream()));
-            String line = null;
-            while ((line = in.readLine()) != null) {
-                System.out.println(line);
-            }
-            in.close();
-            process.waitFor();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (InterruptedException interruptedException) {
-            interruptedException.printStackTrace();
-        }
+    public boolean start() {
+        scriptExecutorService = new ThreadPoolExecutor(
+                Runtime.getRuntime().availableProcessors(),
+                Runtime.getRuntime().availableProcessors() * 2,
+                60, TimeUnit.SECONDS,
+                Queues.newLinkedBlockingQueue(DEFAULT_WORK_QUEUE),
+                new RejectedExecutionHandler() {
+                    @Override
+                    public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
+                        //记录丢弃的任务
+                        logger.warn(r.toString() + "function script task is discard");
+                    }
+                }
+        );
+        return true;
+    }
+
+    public ExecutorService getScriptExecutorService() {
+        return scriptExecutorService;
+    }
+
+    public void stop() {
+        scriptExecutorService.shutdown();
     }
 }
