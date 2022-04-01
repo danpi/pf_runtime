@@ -21,10 +21,17 @@ public class ScriptTask implements Runnable {
 
     private String path = "";
     private String inputMessage = "";
+    private boolean debug = true;
 
     public ScriptTask(String path, String inputMessage) {
         this.path = path;
         this.inputMessage = inputMessage;
+    }
+
+    public ScriptTask(String path, String inputMessage, boolean debug) {
+        this.path = path;
+        this.inputMessage = inputMessage;
+        this.debug = debug;
     }
 
     public String execBashScripts(String filePath, String inputString) {
@@ -42,10 +49,15 @@ public class ScriptTask implements Runnable {
             in.close();
             process.waitFor();
         } catch (Exception e) {
-            PulsarClientManager.getInstance().deliverLogTopic(ExceptionUtils.getStackTrace(e));
+            if (!debug) {
+                PulsarClientManager.getInstance().deliverLogTopic(ExceptionUtils.getStackTrace(e));
+            }
             e.printStackTrace();
         }
-        PulsarClientManager.getInstance().redeliverOutPutTopic(result);
+        if (!debug) {
+            PulsarClientManager.getInstance().redeliverOutPutTopic(result);
+        }
+        System.out.println(result);
         return result;
     }
 

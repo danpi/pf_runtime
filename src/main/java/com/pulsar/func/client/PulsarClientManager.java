@@ -35,7 +35,7 @@ public class PulsarClientManager {
 
     private ProducerManager producerManager = new ProducerManager();
     private ConsumerManager consumerManager = new ConsumerManager();
-    private static List<String> topics = Arrays.asList(CommonConstant.LOG_TOPIC);
+    private static List<String> topics = null;
 
     private static PulsarClientManager instance = new PulsarClientManager();
 
@@ -49,6 +49,9 @@ public class PulsarClientManager {
      * @return
      */
     public boolean init(String inputTopic, String outputTopic) {
+        topics = new ArrayList<>();
+        topics.add(CommonConstant.LOG_TOPIC);
+
         customizedTopicInit(inputTopic, outputTopic);
 
         boolean ret = true;
@@ -59,7 +62,7 @@ public class PulsarClientManager {
                     System.out.println("Message received: " + new String(msg.getData()));
                     try {
                         FunctionExecutor.getInstance().getScriptExecutorService().execute(
-                                new ScriptTask(CommonUtils.getScriptFullPath(basePath, CommonConstant.REVERSE_SCRIPT), msg.getValue()));
+                                new ScriptTask(CommonUtils.getScriptFullPath(basePath, CommonConstant.REVERSE_SCRIPT), new String(msg.getData()), false));
                         //some problems(maybe ack before exec)
                         consumer.acknowledge(msg);
                     } catch (PulsarClientException e) {
@@ -100,9 +103,10 @@ public class PulsarClientManager {
 
     //check topicName with some rules
     private boolean topicNameCheck(String topicName) {
-        if (StringUtils.isNotEmpty(inputTopic)) {
+        if (StringUtils.isEmpty(topicName)) {
+            return false;
+        } else {
             //todo check topic name with naming rule
-            return true;
         }
         return true;
     }

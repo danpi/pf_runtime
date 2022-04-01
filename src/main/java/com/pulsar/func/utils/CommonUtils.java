@@ -15,6 +15,6 @@ public class CommonUtils {
     private static final Logger logger = LoggerFactory.getLogger(CommonUtils.class);
 
     public static String getScriptFullPath(String basePath, String script) {
-        return basePath + "/scripts/" + script;
+        return basePath + script;
     }
 }
