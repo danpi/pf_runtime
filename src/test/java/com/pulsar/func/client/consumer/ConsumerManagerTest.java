@@ -35,7 +35,7 @@ public class ConsumerManagerTest {
         );
         Assert.assertTrue(ret);
         try {
-            Thread.sleep(60 * 1000);
+            Thread.sleep(5 * 1000);
         } catch (InterruptedException interruptedException) {
             System.out.println("ex=" + interruptedException.getMessage());
         }

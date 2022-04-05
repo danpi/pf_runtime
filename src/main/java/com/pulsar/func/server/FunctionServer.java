@@ -18,10 +18,13 @@ public class FunctionServer {
 
     public static void main(String[] args) throws Exception {
         //bootstrap params
-        //String inputTopic = args[0];
-        //String outputTopic = args[1];
         String inputTopic = "";
         String outputTopic = "";
+        if (args.length >= 2) {
+            inputTopic = args[0];
+            outputTopic = args[1];
+        }
+
         //FunctionExecutor init
         if (!FunctionExecutor.getInstance().start()) {
             logger.error("FunctionExecutor start failed");

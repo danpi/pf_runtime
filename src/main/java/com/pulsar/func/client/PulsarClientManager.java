@@ -59,14 +59,14 @@ public class PulsarClientManager {
         //register subscription for input topic
         ret = consumerManager.bootstrapConsumer(this.inputTopic, CommonConstant.INPUT_SUBSCRIPTION,
                 (consumer, msg) -> {
-                    System.out.println("Message received: " + new String(msg.getData()));
+                    logger.info("Message received,body={}", new String(msg.getData()));
                     try {
                         FunctionExecutor.getInstance().getScriptExecutorService().execute(
                                 new ScriptTask(CommonUtils.getScriptFullPath(basePath, CommonConstant.REVERSE_SCRIPT), new String(msg.getData()), false));
                         //some problems(maybe ack before exec)
                         consumer.acknowledge(msg);
                     } catch (PulsarClientException e) {
-                        System.out.println("ack failed, ex=" + e.getMessage());
+                        logger.error("ScriptTask failed,input string={},exception={}", msg.getData(), e);
                         consumer.negativeAcknowledge(msg);
                     }
                 });

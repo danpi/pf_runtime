@@ -35,6 +35,7 @@ public class ScriptTask implements Runnable {
     }
 
     public String execBashScripts(String filePath, String inputString) {
+        logger.info("start execBashScripts for inputString={}", inputString);
         if (inputString == null) {
             logger.warn("inputString is null");
             return null;
@@ -54,10 +55,11 @@ public class ScriptTask implements Runnable {
             }
             e.printStackTrace();
         }
+
         if (!debug) {
             PulsarClientManager.getInstance().redeliverOutPutTopic(result);
         }
-        System.out.println(result);
+        logger.info("execBashScripts result={}", result);
         return result;
     }
 
