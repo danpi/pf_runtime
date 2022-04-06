@@ -28,5 +28,5 @@ public class CommonConstant {
     public final static int DEFAULT_WORK_QUEUE = 100;
 
     //script
-    public final static String REVERSE_SCRIPT = "/scripts/reverse.sh";
+    public final static String REVERSE_SCRIPT = "./reverse.sh";
 }

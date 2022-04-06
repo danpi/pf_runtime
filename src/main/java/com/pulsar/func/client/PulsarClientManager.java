@@ -55,7 +55,7 @@ public class PulsarClientManager {
         customizedTopicInit(inputTopic, outputTopic);
 
         boolean ret = true;
-        basePath = System.getProperty("user.dir");
+        //basePath = System.getProperty("user.dir");
         //register subscription for input topic
         ret = consumerManager.bootstrapConsumer(this.inputTopic, CommonConstant.INPUT_SUBSCRIPTION,
                 (consumer, msg) -> {
