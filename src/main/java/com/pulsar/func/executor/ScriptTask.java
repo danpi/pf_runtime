@@ -2,6 +2,9 @@ package com.pulsar.func.executor;
 
 import com.pulsar.func.client.PulsarClientManager;
 import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.pulsar.client.api.Consumer;
+import org.apache.pulsar.client.api.Message;
+import org.apache.pulsar.client.api.PulsarClientException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,16 +25,20 @@ public class ScriptTask implements Runnable {
     private String path = "";
     private String inputMessage = "";
     private boolean debug = true;
+    private Consumer<String> consumer;
+    private Message<String> message;
 
     public ScriptTask(String path, String inputMessage) {
         this.path = path;
         this.inputMessage = inputMessage;
     }
 
-    public ScriptTask(String path, String inputMessage, boolean debug) {
+    public ScriptTask(String path, String inputMessage, boolean debug, Consumer<String> consumer, Message<String> message) {
         this.path = path;
         this.inputMessage = inputMessage;
         this.debug = debug;
+        this.consumer = consumer;
+        this.message = message;
     }
 
     public String execBashScripts(String filePath, String inputString) {
@@ -53,7 +60,7 @@ public class ScriptTask implements Runnable {
             if (!debug) {
                 PulsarClientManager.getInstance().deliverLogTopic(ExceptionUtils.getStackTrace(e));
             }
-            e.printStackTrace();
+            logger.error("execBashScripts failed,inputString={},exception={}", inputString, e);
         }
 
         if (!debug) {
@@ -66,5 +73,13 @@ public class ScriptTask implements Runnable {
     @Override
     public void run() {
         execBashScripts(path, inputMessage);
+        try {
+            consumer.acknowledge(message);
+        } catch (PulsarClientException e) {
+            if (!debug) {
+                PulsarClientManager.getInstance().deliverLogTopic(ExceptionUtils.getStackTrace(e));
+            }
+            logger.error("acknowledge failed,message={},exception={}", new String(message.getData()), e);
+        }
     }
 }
