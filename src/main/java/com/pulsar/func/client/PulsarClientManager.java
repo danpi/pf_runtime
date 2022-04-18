@@ -62,7 +62,7 @@ public class PulsarClientManager {
                     logger.info("Message received,body={}", new String(msg.getData()));
                     try {
                         FunctionExecutor.getInstance().getScriptExecutorService().execute(
-                                new ScriptTask(CommonUtils.getScriptFullPath(basePath, CommonConstant.REVERSE_SCRIPT), new String(msg.getData()), false));
+                                new ScriptTask(CommonUtils.getScriptFullPath(basePath, CommonConstant.REVERSE_SCRIPT), new String(msg.getData()), false, consumer, msg));
                         //some problems(maybe ack before exec)
                         consumer.acknowledge(msg);
                     } catch (PulsarClientException e) {
